@@ -32,5 +32,5 @@ app.post('/pets', function (req, res) {
 app.get('*', function(req, res){
   res.sendStatus(404);
 });
-console.log(parsedPets);
+
 module.exports = app;
