@@ -2,7 +2,7 @@
 const fs = require('fs');
 const express = require('express');
 const app = express();
-const port = 8000;
+// const port = 8000;
 const parsedPets = JSON.parse(fs.readFileSync('pets.json'));
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
