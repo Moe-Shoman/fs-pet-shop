@@ -1,20 +1,38 @@
 'use strict';
-const fs = require('fs');
-const express = require('express');
+const fs = require("fs");
+const express = require("express");
 const app = express();
 const port = 8000;
 const path = require("path");
-const petsPath = path.join(__dirname, 'pets.json');
-const bodyParser = require('body-parser');
+const petsPath = path.join(__dirname, "pets.json");
+const bodyParser = require("body-parser");
+const basicAuth = require("basic-auth");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended: true
+    extended: true,
 }));
+app.use(auth);
+
+function auth(req, res, next) {
+    function unauthorized(res) {
+        res.set("WWW-Authenticate", 'Basic realm="Required"');
+        res.sendStatus(401);
+    };
+    let user = basicAuth(req);
+    if (!user || !user.name || !user.pass) {
+        return unauthorized(res);
+    };
+    if (user.name === "admin" && user.pass === "meowmix") {
+        return next();
+    } else {
+        return unauthorized(res);
+    };
+}
 
 function nonEmptyObjKeys(obj) {
     return Object.values(obj).every(val => val.length !== 0);
 }
-app.get('/pets', function(req, res) {
+app.get("/pets", function(req, res) {
     fs.readFile(petsPath, 'utf8', (err, data) => {
         if (err) {
             throw err;
@@ -37,7 +55,7 @@ app.get('/pets/:id', function(req, res) {
     });
 });
 
-app.post('/pets', function(req, res) {
+app.post("/pets", function(req, res) {
     fs.readFile(petsPath, 'utf8', (err, data) => {
         if (err) {
             throw err;
@@ -74,7 +92,7 @@ app.patch("/pets/:id", (req, res) => {
             })
         }
         let petsJSON = JSON.stringify(parsedPets);
-        fs.writeFile('./pets.json', petsJSON, (err) => {
+        fs.writeFile("./pets.json", petsJSON, (err) => {
             if (err) {
                 throw err;
             }
@@ -104,7 +122,7 @@ app.delete("/pets/:id", (req, res) => {
         })
     })
 });
-app.get('*', function(req, res) {
+app.get("*", function(req, res) {
     res.sendStatus(404);
 });
 
